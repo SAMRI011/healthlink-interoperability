@@ -1,26 +1,100 @@
-:root { color-scheme: light; --ink:#17202a; --muted:#667085; --line:#d9dee7; --paper:#fff; --bg:#f4f6f8; --accent:#1d4ed8; --ok:#157347; --bad:#b42318; }
+:root {
+  color-scheme: light;
+  --ink:#20262e;
+  --muted:#66717d;
+  --line:#d7dde3;
+  --paper:#ffffff;
+  --bg:#f3f5f7;
+  --ok:#237a3b;
+  --bad:#b42318;
+}
 * { box-sizing:border-box; }
-body { margin:0; font-family:Arial, Helvetica, sans-serif; color:var(--ink); background:var(--bg); }
+html, body { margin:0; min-height:100%; }
+body { font-family:Arial, Helvetica, sans-serif; color:var(--ink); background:var(--bg); font-size:14px; }
 a { color:inherit; }
-.topbar { background:#17202a; color:#fff; padding:16px 28px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
-.brand { font-weight:700; letter-spacing:.02em; }.tag { font-size:12px; color:#d0d5dd; }
-.shell { max-width:1180px; margin:0 auto; padding:32px 22px 64px; }
-.hero { margin-bottom:24px; }.hero h1 { margin:0 0 8px; font-size:30px; }.hero p { color:var(--muted); max-width:800px; line-height:1.55; }
-.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px; }
-.card { background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:20px; box-shadow:0 1px 2px rgba(16,24,40,.04); }
-.card h2,.card h3 { margin-top:0; }.card p { color:var(--muted); line-height:1.5; }
-.button, button { display:inline-block; border:0; border-radius:6px; background:#17202a; color:#fff; padding:11px 16px; font-weight:700; cursor:pointer; text-decoration:none; }
-button:disabled { opacity:.55; cursor:wait; }.button.secondary { background:#fff; color:#17202a; border:1px solid var(--line); }
-label { display:block; font-size:13px; font-weight:700; margin:14px 0 6px; }
-input,select,textarea { width:100%; padding:11px 12px; border:1px solid #bfc7d4; border-radius:6px; background:#fff; font:inherit; }
-textarea { min-height:90px; resize:vertical; }.form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-.notice { margin:18px 0; padding:14px 16px; border:1px solid var(--line); border-left:4px solid var(--accent); background:#fff; border-radius:6px; line-height:1.5; }
-.notice.ok { border-left-color:var(--ok); }.notice.error { border-left-color:var(--bad); }
-.kpi { font-size:28px; font-weight:800; }.muted { color:var(--muted); }.small { font-size:12px; }
-table { width:100%; border-collapse:collapse; background:#fff; font-size:14px; } th,td { padding:11px 10px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; } th { background:#f8fafc; font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
-.table-wrap { overflow:auto; border:1px solid var(--line); border-radius:8px; }.status { font-weight:700; }.status.ok { color:var(--ok); }.status.bad { color:var(--bad); }
-.nav { display:flex; gap:10px; flex-wrap:wrap; margin:0 0 22px; }.nav a { padding:7px 10px; background:#fff; border:1px solid var(--line); border-radius:6px; text-decoration:none; font-size:13px; }
-.footer { color:var(--muted); font-size:12px; margin-top:36px; border-top:1px solid var(--line); padding-top:18px; }
-.code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
-.dark { background:#111827; color:#e5e7eb; }.dark .card,.dark table { background:#18212f; border-color:#344054; }.dark th { background:#101828; }.dark td,.dark th { border-color:#344054; }.dark .muted,.dark .card p { color:#98a2b3; }.dark .nav a { background:#18212f; border-color:#344054; }.dark .footer { border-color:#344054; color:#98a2b3; }
-@media(max-width:650px){.form-row{grid-template-columns:1fr}.topbar{padding:14px 18px}.shell{padding:24px 14px 50px}}
+button, input, select, textarea { font:inherit; }
+button { cursor:pointer; }
+button:disabled { opacity:.55; cursor:wait; }
+.small { font-size:12px; }
+.muted { color:var(--muted); }
+.code { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12px; }
+.status { font-weight:700; }
+.status.ok { color:var(--ok); }
+.status.bad { color:var(--bad); }
+.footer { color:#7a8490; font-size:11px; margin-top:30px; padding-top:14px; border-top:1px solid var(--line); }
+.notice { margin:16px 0; padding:11px 13px; background:#fff; border:1px solid var(--line); border-left:3px solid #6b7280; line-height:1.45; }
+.notice.ok { border-left-color:var(--ok); }
+.notice.error { border-left-color:var(--bad); }
+.table-wrap { overflow:auto; border:1px solid var(--line); background:#fff; }
+table { width:100%; border-collapse:collapse; background:#fff; font-size:13px; }
+th, td { padding:9px 11px; border-bottom:1px solid #e3e7eb; text-align:left; vertical-align:top; }
+th { background:#f4f6f8; color:#4b5560; font-size:11px; text-transform:uppercase; letter-spacing:.03em; font-weight:700; }
+tbody tr:last-child td { border-bottom:0; }
+
+/* Diagnostic center: simple laboratory workstation */
+.diagnostic-ui { min-height:100vh; background:#eef2f5; }
+.diagnostic-ui .topbar { height:54px; background:#fff; border-bottom:3px solid #28638a; padding:0 28px; display:flex; align-items:center; justify-content:space-between; }
+.diagnostic-ui .brand { color:#1f3545; font-size:17px; font-weight:700; }
+.diagnostic-ui .tag { color:#6d7781; font-size:12px; }
+.diagnostic-ui .shell { max-width:1040px; margin:0 auto; padding:22px 24px 44px; }
+.diagnostic-ui .nav { display:flex; gap:0; margin-bottom:20px; border-bottom:1px solid #cfd6dc; }
+.diagnostic-ui .nav a { padding:9px 14px; color:#264b63; background:#fff; border:1px solid #cfd6dc; border-bottom:0; text-decoration:none; font-size:13px; }
+.diagnostic-ui .page-heading { margin-bottom:16px; }
+.diagnostic-ui .page-heading h1 { margin:0 0 4px; font-size:21px; font-weight:600; color:#24333e; }
+.diagnostic-ui .page-heading p { margin:0; color:#68737d; font-size:13px; }
+.diagnostic-ui .panel { background:#fff; border:1px solid #cfd6dc; max-width:760px; }
+.diagnostic-ui .panel-title { padding:10px 14px; background:#f6f8fa; border-bottom:1px solid #d7dde3; font-weight:700; color:#37434d; }
+.diagnostic-ui form { padding:16px; }
+.diagnostic-ui .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.diagnostic-ui label { display:block; font-size:12px; font-weight:700; color:#46515b; margin:11px 0 5px; }
+.diagnostic-ui input,.diagnostic-ui select,.diagnostic-ui textarea { width:100%; border:1px solid #aeb8c2; border-radius:2px; background:#fff; padding:8px 9px; color:#222; }
+.diagnostic-ui textarea { min-height:72px; resize:vertical; }
+.diagnostic-ui button { margin-top:14px; border:1px solid #1e5274; border-radius:2px; background:#28638a; color:#fff; padding:8px 15px; font-weight:700; }
+
+/* Exchange: compact infrastructure console */
+.exchange-ui { min-height:100vh; background:#171b20; color:#d7dde3; }
+.exchange-ui .topbar { height:48px; padding:0 22px; background:#101317; border-bottom:1px solid #30363d; display:flex; align-items:center; justify-content:space-between; }
+.exchange-ui .brand { font-size:14px; font-weight:700; color:#f1f3f5; }
+.exchange-ui .tag { color:#8e99a5; font-size:11px; }
+.exchange-ui .shell { max-width:1320px; margin:0 auto; padding:18px 22px 38px; }
+.exchange-ui .nav { display:flex; margin-bottom:18px; }
+.exchange-ui .nav a { color:#c8d0d8; text-decoration:none; border:1px solid #3a424b; background:#20262d; padding:6px 10px; font-size:12px; }
+.exchange-ui .page-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; margin-bottom:14px; }
+.exchange-ui .page-heading h1 { margin:0; font-size:18px; font-weight:600; color:#f0f2f4; }
+.exchange-ui .page-heading p { margin:3px 0 0; color:#8e99a5; font-size:12px; }
+.exchange-ui .service-strip { display:flex; gap:24px; align-items:center; background:#20262d; border:1px solid #353d46; padding:9px 12px; margin-bottom:14px; font-size:12px; }
+.exchange-ui .service-strip strong { color:#e6e9ec; }
+.exchange-ui .service-strip .count { margin-left:auto; }
+.exchange-ui .table-wrap { border-color:#353d46; background:#1d2228; }
+.exchange-ui table { background:#1d2228; color:#d7dde3; }
+.exchange-ui th { background:#242a31; color:#9ea8b2; border-color:#343b44; }
+.exchange-ui td { border-color:#303740; }
+.exchange-ui tbody tr:hover { background:#20262d; }
+.exchange-ui .footer { border-color:#30363d; color:#737d87; }
+.exchange-ui .notice { background:#20262d; border-color:#3b434c; color:#d7dde3; }
+
+/* Hospital: conventional EMR module */
+.hospital-ui { min-height:100vh; background:#f5f6f7; }
+.hospital-ui .topbar { height:56px; background:#263746; color:#fff; padding:0 26px; display:flex; align-items:center; justify-content:space-between; }
+.hospital-ui .brand { font-size:16px; font-weight:700; }
+.hospital-ui .tag { font-size:11px; color:#c9d2da; }
+.hospital-ui .shell { max-width:1240px; margin:0 auto; padding:0 22px 44px; }
+.hospital-ui .nav { display:flex; gap:0; background:#fff; border:1px solid #d3d9df; border-top:0; margin:0 -1px 22px; }
+.hospital-ui .nav a { padding:10px 15px; border-right:1px solid #dfe3e7; text-decoration:none; color:#34495a; font-size:12px; }
+.hospital-ui .nav a:hover { background:#f1f4f6; }
+.hospital-ui .page-heading { margin-bottom:14px; display:flex; justify-content:space-between; align-items:flex-end; gap:20px; }
+.hospital-ui .page-heading h1 { margin:0 0 3px; font-size:20px; font-weight:600; color:#263746; }
+.hospital-ui .page-heading p { margin:0; color:#6d7781; font-size:12px; }
+.hospital-ui .summary-line { display:flex; gap:24px; padding:9px 12px; background:#fff; border:1px solid #d5dbe0; border-bottom:0; font-size:12px; color:#53606b; }
+.hospital-ui .summary-line strong { color:#263746; }
+.hospital-ui .empty { padding:18px; background:#fff; color:#68737d; }
+.hospital-ui .footer { border-color:#d5dbe0; }
+
+@media(max-width:650px){
+  .diagnostic-ui .form-row{grid-template-columns:1fr}
+  .diagnostic-ui .topbar,.exchange-ui .topbar,.hospital-ui .topbar{padding-left:14px;padding-right:14px}
+  .diagnostic-ui .shell,.exchange-ui .shell,.hospital-ui .shell{padding-left:12px;padding-right:12px}
+  .exchange-ui .service-strip,.hospital-ui .summary-line{align-items:flex-start;flex-direction:column;gap:6px}
+  .exchange-ui .service-strip .count{margin-left:0}
+  .page-heading{align-items:flex-start!important;flex-direction:column}
+}
