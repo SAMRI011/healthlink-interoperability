@@ -16,19 +16,24 @@ validation, and persistence.
 
 ## Live Demo
 
-  ------------------------------------------------------------------------------------------------------
-  System                  Live deployment                                        Role
-  ----------------------- ------------------------------------------------------ -----------------------
-  Diagnostic Center       https://healthlink-diagnostic-center.vercel.app        Creates and sends
-                                                                                 diagnostic results
+  ------------------------------------------------------------------------------------------
+  System             Live deployment                                        Role
+  ------------------ ------------------------------------------------------ ----------------
+  Diagnostic Center  https://healthlink-diagnostic-center.vercel.app        Creates and
+                                                                            sends diagnostic
+                                                                            results
 
-  Interoperability Layer  https://healthlink-interoperability-layer.vercel.app   Authenticates, audits,
-                                                                                 and routes exchanges
+  Interoperability   https://healthlink-interoperability-layer.vercel.app   Authenticates,
+  Layer                                                                     audits, and
+                                                                            routes exchanges
 
-  Hospital EMR            https://healthlink-hospital-emr.vercel.app             Matches patients,
-                                                                                 validates results, and
-                                                                                 stores accepted data
-  ------------------------------------------------------------------------------------------------------
+  Hospital EMR       https://healthlink-hospital-emr.vercel.app             Matches
+                                                                            patients,
+                                                                            validates
+                                                                            results, and
+                                                                            stores accepted
+                                                                            data
+  ------------------------------------------------------------------------------------------
 
 ## Architecture
 
@@ -63,6 +68,27 @@ not connect directly to the Hospital database.
 8.  Valid results are persisted in the Hospital PostgreSQL database.
 9.  The outcome is returned through the Interoperability Layer to the
     Diagnostic Center.
+
+## Screenshots
+
+### Diagnostic Center --- Result Entry
+
+![Diagnostic Center result entry](docs/screenshots/diagnostic-entry.png)
+
+### Successful Diagnostic Exchange
+
+![Diagnostic Center successful result
+submission](docs/screenshots/diagnostic-success.png)
+
+### Interoperability Layer --- Audit Trail
+
+![Interoperability Layer audit
+trail](docs/screenshots/exchange-audit.png)
+
+### Hospital EMR --- Received Result
+
+![Hospital EMR received diagnostic
+result](docs/screenshots/hospital-result.png)
 
 ## Interoperability Concepts Demonstrated
 
