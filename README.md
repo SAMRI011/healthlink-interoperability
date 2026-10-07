@@ -1,127 +1,273 @@
-# HealthLink — Next.js Digital Health Interoperability Prototype
+# HealthLink --- Digital Health Interoperability Prototype
 
-A synthetic, full-stack learning prototype that demonstrates diagnostic-result interoperability between a sending diagnostic center and a receiving hospital system.
+A working portfolio prototype demonstrating authenticated exchange of
+**synthetic diagnostic results** between independently deployed
+healthcare systems.
 
-**No real patient data. Not a production FHIR implementation. Not affiliated with or deployed at any real healthcare facility.**
+The project models a realistic interoperability workflow: an external
+diagnostic center sends a FHIR-style result bundle to an
+interoperability layer, which authenticates and audits the transaction
+before routing it to a hospital EMR for patient matching, terminology
+validation, and persistence.
 
-## What is real in this prototype
+> **Demo only:** Uses synthetic patient data. This is not a production
+> FHIR implementation and is not connected to any real healthcare
+> facility.
 
-The application performs actual backend HTTP/API calls. A diagnostic submission creates a FHIR-style `Bundle` containing `DiagnosticReport` and `Observation`, sends it to an authenticated exchange endpoint, routes it to the hospital endpoint, resolves the external patient identifier through a registry endpoint, validates LOINC/UCUM through a terminology endpoint, and persists accepted results plus exchange audit logs in PostgreSQL.
+## Live Demo
 
-It supports four synthetic observations:
+  ------------------------------------------------------------------------------------------------------
+  System                  Live deployment                                        Role
+  ----------------------- ------------------------------------------------------ -----------------------
+  Diagnostic Center       https://healthlink-diagnostic-center.vercel.app        Creates and sends
+                                                                                 diagnostic results
 
-| Result | LOINC | UCUM unit |
-| --- | --- | --- |
-| Left ventricular ejection fraction | `10230-1` | `%` |
-| Hemoglobin | `718-7` | `g/dL` |
-| Creatinine | `2160-0` | `mg/dL` |
-| Glucose | `2345-7` | `mg/dL` |
+  Interoperability Layer  https://healthlink-interoperability-layer.vercel.app   Authenticates, audits,
+                                                                                 and routes exchanges
 
-Synthetic patient mappings:
-
-- `DC-8472` → `DEMO-001` (Abebe Kebede)
-- `DC-3915` → `DEMO-002` (Hana Tesfaye)
+  Hospital EMR            https://healthlink-hospital-emr.vercel.app             Matches patients,
+                                                                                 validates results, and
+                                                                                 stores accepted data
+  ------------------------------------------------------------------------------------------------------
 
 ## Architecture
 
-One Next.js deployment exposes five logical components as separate pages and API boundaries:
-
-```text
-Diagnostic UI
-    |
-    | POST /api/diagnostic/send
-    v
-Interoperability API -----> PostgreSQL audit log
-    |  POST /api/exchange
-    v
-Hospital API -------------> PostgreSQL accepted results
-    |\
-    | \----> Client Registry API
-    |
-    \------> Terminology API
+``` mermaid
+flowchart LR
+    A["Diagnostic Center"] -->|"FHIR-style Bundle<br/>HTTPS + API key"| B["Interoperability Layer"]
+    B -->|"Authenticated HTTPS"| C["Hospital EMR"]
+    B --> D[("Exchange Audit DB")]
+    C --> E["Client Registry"]
+    C --> F["Terminology Validation"]
+    C --> G[("Hospital PostgreSQL")]
 ```
 
-The server-side diagnostic endpoint adds the API key; the browser never receives it. The interoperability endpoint authenticates the sender. The hospital endpoint accepts only requests marked as coming from the authenticated exchange path.
+The live portfolio deployment uses **three independent Vercel
+applications** built from the same codebase. The Diagnostic Center does
+not connect directly to the Hospital database.
 
-## Local setup
+## End-to-End Workflow
 
-Requirements: Node.js 20.9+ and a PostgreSQL database (Neon works well).
+1.  A diagnostic user enters a synthetic laboratory result.
+2.  The Diagnostic Center constructs a FHIR-style `Bundle` containing
+    `DiagnosticReport` and `Observation` resources.
+3.  The bundle is sent server-to-server to the Interoperability Layer
+    over HTTPS with an API key.
+4.  The Interoperability Layer authenticates the sender and records the
+    exchange in its audit database.
+5.  The bundle is forwarded to the Hospital EMR.
+6.  The Hospital maps the diagnostic center's external patient
+    identifier to its internal patient identifier.
+7.  The Hospital validates the observation code and measurement unit
+    against the prototype terminology catalogue.
+8.  Valid results are persisted in the Hospital PostgreSQL database.
+9.  The outcome is returned through the Interoperability Layer to the
+    Diagnostic Center.
 
-```bash
+## Interoperability Concepts Demonstrated
+
+### FHIR-style exchange
+
+Diagnostic results are represented using a FHIR-style `Bundle` with
+`DiagnosticReport` and `Observation` resources. The project
+intentionally describes this as **FHIR-style** rather than claiming full
+FHIR conformance.
+
+### LOINC
+
+Laboratory observations use standardized LOINC identifiers.
+
+  Observation                          LOINC       UCUM unit
+  ------------------------------------ ----------- -----------
+  Left ventricular ejection fraction   `10230-1`   `%`
+  Hemoglobin                           `718-7`     `g/dL`
+  Creatinine                           `2160-0`    `mg/dL`
+  Glucose                              `2345-7`    `mg/dL`
+
+### UCUM
+
+Measurement units are validated using UCUM-style standardized units such
+as `g/dL` and `mg/dL`.
+
+### Patient identity matching
+
+The diagnostic center and hospital do not need to use the same patient
+identifier.
+
+Synthetic examples:
+
+  Diagnostic Center ID   Hospital ID   Synthetic patient
+  ---------------------- ------------- -------------------
+  `DC-8472`              `DEMO-001`    Abebe Kebede
+  `DC-3915`              `DEMO-002`    Hana Tesfaye
+
+This demonstrates the role of a client/patient registry when exchanging
+information between independent systems.
+
+### Authentication and system boundaries
+
+The browser never receives the shared server API key. Authentication
+occurs between backend services, and the Hospital rejects results that
+do not arrive through the expected authenticated exchange path.
+
+### Audit logging
+
+The Interoperability Layer maintains its own transaction history,
+including successful deliveries and rejected exchanges.
+
+## Independent Deployments
+
+### Diagnostic Center
+
+Environment:
+
+``` text
+APP_ROLE=diagnostic
+DIAGNOSTIC_API_KEY=<shared secret>
+EXCHANGE_BASE_URL=https://healthlink-interoperability-layer.vercel.app
+```
+
+The Diagnostic Center has no Hospital database credentials.
+
+### Interoperability Layer
+
+Environment:
+
+``` text
+APP_ROLE=exchange
+DIAGNOSTIC_API_KEY=<shared secret>
+HOSPITAL_BASE_URL=https://healthlink-hospital-emr.vercel.app
+DATABASE_URL=<exchange audit database>
+```
+
+Its database is used for interoperability audit records.
+
+### Hospital EMR
+
+Environment:
+
+``` text
+APP_ROLE=hospital
+DIAGNOSTIC_API_KEY=<shared secret>
+DATABASE_URL=<hospital database>
+```
+
+The Hospital owns persistence of accepted clinical results.
+
+## Technology Stack
+
+-   **Next.js 16**
+-   **React 19**
+-   **Node.js**
+-   **PostgreSQL**
+-   **Neon Serverless Postgres**
+-   **Vercel**
+-   Server-to-server REST/HTTPS APIs
+-   FHIR-style healthcare resources
+-   LOINC and UCUM terminology concepts
+
+## Test the Live Workflow
+
+A simple synthetic test:
+
+``` text
+External Patient ID: DC-8472
+Result Type: Hemoglobin
+Result Value: 13.5
+Conclusion: Synthetic external diagnostic result.
+```
+
+Submit it from the Diagnostic Center.
+
+A successful exchange should:
+
+-   return an accepted response to the Diagnostic Center;
+-   create a `delivered / 201` audit entry in the Interoperability
+    Layer;
+-   map `DC-8472` to Hospital patient `DEMO-001`;
+-   validate Hemoglobin as LOINC `718-7` with unit `g/dL`;
+-   store the result in the Hospital database.
+
+## Expected Failure Behaviour
+
+  Condition                                      Expected result
+  ---------------------------------------------- -----------------
+  Missing or incorrect sender API key            `401`
+  Request bypasses authenticated exchange path   `401`
+  Unknown external patient identifier            `404`
+  Unsupported LOINC/unit combination             `422`
+  Database unavailable or misconfigured          `503`
+  Valid authenticated result                     `201`
+
+Rejected exchanges can remain visible in the Exchange audit history,
+demonstrating that unsuccessful interoperability transactions are also
+recorded.
+
+## Local Development
+
+Requirements:
+
+-   Node.js 20.9+
+-   PostgreSQL database
+
+Install dependencies:
+
+``` bash
 npm install
-cp .env.example .env.local
 ```
 
-Set `DIAGNOSTIC_API_KEY` and `DATABASE_URL` in `.env.local`, then:
+Create `.env.local` and configure the required environment variables.
+Then run:
 
-```bash
+``` bash
 npm test
 npm run dev
 ```
 
-Open `http://localhost:3000/diagnostic`.
+The required database tables are created automatically on first use.
 
-The database tables are created automatically on first use.
+The codebase also supports a local/all-in-one fallback mode for
+development, while the public portfolio demonstration uses the
+independent three-deployment architecture.
 
-## Deploy to Vercel
+## Security Notes
 
-1. Push this folder to a GitHub repository.
-2. Import the repository into Vercel as a Next.js project.
-3. In Vercel Marketplace, add a Neon Postgres database to the project. Confirm the integration provides `DATABASE_URL` (or manually add the Neon connection string as `DATABASE_URL`).
-4. Add `DIAGNOSTIC_API_KEY` in **Project → Settings → Environment Variables**. Use a long random value; do not prefix it with `NEXT_PUBLIC_`.
-5. Redeploy.
-6. Open `/diagnostic`, send `DC-8472` + Hemoglobin `13.5`, then verify `/hospital` and `/exchange`.
+This prototype demonstrates basic system-to-system authentication and
+separation of responsibilities, but it is **not production healthcare
+security**.
 
-### Generate a secret locally
-
-PowerShell:
-
-```powershell
--join ((48..57)+(65..90)+(97..122) | Get-Random -Count 48 | ForEach-Object {[char]$_})
-```
-
-## Expected failure behavior
-
-- Missing/wrong exchange API key → `401`
-- Unknown external patient ID → `404`
-- Unsupported LOINC/unit → `422`
-- Database unavailable/misconfigured → `503`
-- Valid authenticated, matched, terminology-valid result → `201`
-
-## Why this is different from the original Flask/Render version
-
-The five logical services are preserved as API boundaries, but they live in one full-stack Next.js/Vercel project. This avoids maintaining five independently sleeping demo servers. SQLite was replaced by external PostgreSQL because serverless deployments should not rely on local filesystem state.
+A production implementation would require controls such as OAuth
+2.0/OIDC or equivalent service authentication, robust secrets
+management, authorization/RBAC, consent and privacy controls, encryption
+and key-management policies, comprehensive audit governance, rate
+limiting, message retry/queue infrastructure, monitoring, high
+availability, and organizational security processes.
 
 ## Limitations
 
-This is an educational proof of concept. The patient registry and terminology catalogue are intentionally tiny and deterministic. Authentication is simplified. It does not implement full FHIR conformance, OAuth/OIDC, consent, RBAC, production MPI/terminology infrastructure, queues, retries, high availability, clinical governance, or real healthcare-system integration.
+HealthLink is an educational and portfolio proof of concept.
 
-## Split deployment mode (recommended portfolio demo)
+It does **not** claim:
 
-The same repository can be deployed as three independent Vercel projects while keeping one codebase:
+-   full HL7 FHIR conformance;
+-   integration with Ethiopia's national health infrastructure;
+-   production-grade patient matching or Master Patient Index
+    capabilities;
+-   a complete terminology server;
+-   clinical validation or certification;
+-   use with real patient information.
 
-```text
-Diagnostic Center deployment
-        |
-        | FHIR-style Bundle + API key over HTTPS
-        v
-Interoperability deployment
-        |
-        | authenticated server-to-server HTTPS
-        v
-Hospital EMR deployment
-        |
-        +--> Client Registry
-        +--> Terminology validation
-        +--> Hospital PostgreSQL
-```
+The patient registry and terminology catalogue are intentionally small
+and deterministic so the interoperability workflow can be demonstrated
+safely with synthetic data.
 
-Environment variables:
+## Purpose
 
-| Deployment | Required settings |
-| --- | --- |
-| Diagnostic Center | `APP_ROLE=diagnostic`, `DIAGNOSTIC_API_KEY`, `EXCHANGE_BASE_URL` |
-| Interoperability Layer | `APP_ROLE=exchange`, `DIAGNOSTIC_API_KEY`, `HOSPITAL_BASE_URL`, `DATABASE_URL` |
-| Hospital EMR | `APP_ROLE=hospital`, `DIAGNOSTIC_API_KEY`, `DATABASE_URL` |
+HealthLink was built to explore the engineering behind health
+information exchange: how independently operated healthcare systems can
+authenticate one another, exchange structured clinical information,
+reconcile different patient identifiers, use standardized terminology,
+maintain audit trails, and preserve clear data-ownership boundaries.
 
-Use the same `DIAGNOSTIC_API_KEY` on all three deployments. For the strongest demonstration, Exchange and Hospital use separate databases: Exchange stores audit logs; Hospital stores accepted results. If the cross-system URLs are omitted, local development falls back to the original single-deployment flow.
+It is intended as a practical demonstration of digital-health
+interoperability concepts rather than a production clinical system.
