@@ -1,3 +1,28 @@
-import Nav from '@/components/Nav'; import Footer from '@/components/Footer';
-export default function Home(){ return <><header className="topbar"><div className="brand">HealthLink</div><div className="tag">Digital Health Interoperability Prototype</div></header><main className="shell"><Nav/><section className="hero"><h1>Diagnostic result interoperability</h1><p>A full-stack synthetic prototype showing how an external diagnostic result can move through authenticated exchange, patient identity matching, terminology validation, and hospital persistence.</p></section><div className="grid">
-{[['Diagnostic Center','Creates a FHIR-style Bundle and submits a structured result.','/diagnostic'],['Interoperability Layer','Authenticates, audits and routes the exchange.','/exchange'],['Hospital EMR','Matches identity, validates terminology and stores accepted results.','/hospital'],['Client Registry','Maps external patient identifiers to hospital identifiers.','/registry'],['Terminology Service','Validates supported LOINC concepts and UCUM units.','/terminology']].map(([h,p,u])=><section className="card" key={u}><h2>{h}</h2><p>{p}</p><a className="button secondary" href={u}>Open</a></section>)}</div><Footer/></main></> }
+import { redirect } from 'next/navigation';
+import Nav from '@/components/Nav';
+import Footer from '@/components/Footer';
+
+export default function Home() {
+  const role = String(process.env.APP_ROLE || 'all').toLowerCase();
+  if (role === 'diagnostic') redirect('/diagnostic');
+  if (role === 'exchange') redirect('/exchange');
+  if (role === 'hospital') redirect('/hospital');
+
+  return <>
+    <header className="topbar"><div className="brand">HealthLink</div><div className="tag">Digital Health Interoperability Prototype</div></header>
+    <main className="shell">
+      <Nav mode="all"/>
+      <section className="hero"><h1>Diagnostic result interoperability</h1><p>A full-stack synthetic prototype showing how an external diagnostic result can move through authenticated exchange, patient identity matching, terminology validation, and hospital persistence.</p></section>
+      <div className="grid">
+        {[
+          ['Diagnostic Center','Creates a FHIR-style Bundle and submits a structured result.','/diagnostic'],
+          ['Interoperability Layer','Authenticates, audits and routes the exchange.','/exchange'],
+          ['Hospital EMR','Matches identity, validates terminology and stores accepted results.','/hospital'],
+          ['Client Registry','Maps external patient identifiers to hospital identifiers.','/registry'],
+          ['Terminology Service','Validates supported LOINC concepts and UCUM units.','/terminology']
+        ].map(([h,p,u]) => <section className="card" key={u}><h2>{h}</h2><p>{p}</p><a className="button secondary" href={u}>Open</a></section>)}
+      </div>
+      <Footer/>
+    </main>
+  </>;
+}

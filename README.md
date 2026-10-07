@@ -95,3 +95,33 @@ The five logical services are preserved as API boundaries, but they live in one 
 ## Limitations
 
 This is an educational proof of concept. The patient registry and terminology catalogue are intentionally tiny and deterministic. Authentication is simplified. It does not implement full FHIR conformance, OAuth/OIDC, consent, RBAC, production MPI/terminology infrastructure, queues, retries, high availability, clinical governance, or real healthcare-system integration.
+
+## Split deployment mode (recommended portfolio demo)
+
+The same repository can be deployed as three independent Vercel projects while keeping one codebase:
+
+```text
+Diagnostic Center deployment
+        |
+        | FHIR-style Bundle + API key over HTTPS
+        v
+Interoperability deployment
+        |
+        | authenticated server-to-server HTTPS
+        v
+Hospital EMR deployment
+        |
+        +--> Client Registry
+        +--> Terminology validation
+        +--> Hospital PostgreSQL
+```
+
+Environment variables:
+
+| Deployment | Required settings |
+| --- | --- |
+| Diagnostic Center | `APP_ROLE=diagnostic`, `DIAGNOSTIC_API_KEY`, `EXCHANGE_BASE_URL` |
+| Interoperability Layer | `APP_ROLE=exchange`, `DIAGNOSTIC_API_KEY`, `HOSPITAL_BASE_URL`, `DATABASE_URL` |
+| Hospital EMR | `APP_ROLE=hospital`, `DIAGNOSTIC_API_KEY`, `DATABASE_URL` |
+
+Use the same `DIAGNOSTIC_API_KEY` on all three deployments. For the strongest demonstration, Exchange and Hospital use separate databases: Exchange stores audit logs; Hospital stores accepted results. If the cross-system URLs are omitted, local development falls back to the original single-deployment flow.
