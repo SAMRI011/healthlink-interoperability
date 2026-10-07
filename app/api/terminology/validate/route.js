@@ -1,0 +1,4 @@
+import { conceptByCode } from '@/lib/catalog'; import { json } from '@/lib/http';
+export const dynamic='force-dynamic';
+export async function POST(request){let b;try{b=await request.json()}catch{return json({valid:false,message:'Request body must be JSON.'},400)}
+if(b.system!=='http://loinc.org')return json({valid:false,message:'Unsupported coding system.'},422);const concept=conceptByCode(b.code);if(!concept)return json({valid:false,message:`Unsupported LOINC code: ${b.code||'(missing)'}.`},422);if(b.unitSystem!=='http://unitsofmeasure.org')return json({valid:false,message:'Unsupported unit system.'},422);if(b.unit!==concept.unit)return json({valid:false,message:`LOINC ${b.code} expects UCUM unit ${concept.unit}.`},422);return json({valid:true,code:concept.loinc,display:concept.name,unit:concept.unit});}
