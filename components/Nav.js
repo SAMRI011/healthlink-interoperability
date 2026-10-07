@@ -1,10 +1,9 @@
 export default function Nav({ mode = 'all' }) {
   const links = {
     diagnostic: [['Result Entry', '/diagnostic']],
-    exchange: [['Transactions', '/exchange']],
+    exchange: [['Transactions', '/exchange'], ['Client Registry', '/registry']],
     hospital: [
       ['External Results', '/hospital'],
-      ['Client Registry', '/registry'],
       ['Terminology', '/terminology']
     ],
     all: [
